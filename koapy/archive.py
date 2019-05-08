@@ -95,17 +95,8 @@ class Archive:
         
         if self.debug:
             self.logger.debug ('')
-            self.logger.debug ('self.logger:')
-            self.logger.debug (self.logger)
-            self.logger.debug ('')
-            self.logger.debug ('self.handler:')
-            self.logger.debug (self.handler)
-            self.logger.debug ('len(self.handler):')
-            self.logger.debug (len(self.handler))
-            self.logger.debug ('')
             self.logger.debug ('Enter archive.init:')
             self.logger.debug (f'cookiepath= [{self.cookiepath:s}]')
-#            self.logger.debug (f'debugfname= [{self.debugfname:s}]')
 
         
         self.tap_url = \

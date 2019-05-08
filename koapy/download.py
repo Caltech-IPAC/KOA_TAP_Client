@@ -131,12 +131,11 @@ class Download:
                         self.logger.debug (f'cookie.name= {cookie.name:s}')
                         self.logger.debug (f'cookie.value= {cookie.value:s}')
                         self.logger.debug (f'cookie.domain= {cookie.domain:s}')
-            except:
-                pass
-
+            except Exception as e:
                 if self.debug:
                     self.logger.debug ('')
-                    self.logger.debug ('loadCookie exception')
+                    self.logger.debug (f'loadCookie exception: {str(e):s}')
+                pass
 
         
         fmt_astropy = self.format
@@ -248,7 +247,7 @@ class Download:
             sys.exit()
  
         srow = 0;
-        erow = self.len_tbl
+        erow = self.len_tbl - 1
 
         if ('start_row' in kwargs): 
             srow = kwargs.get('start_row')
@@ -266,8 +265,8 @@ class Download:
      
         if (srow < 0):
             srow = 0 
-        if (erow > self.len_tbl):
-            erow = self.len_tbl 
+        if (erow > self.len_tbl - 1):
+            erow = self.len_tbl - 1 
  
         if self.debug:
             self.logger.debug ('')
@@ -297,11 +296,13 @@ class Download:
         nfile = erow - srow   
         
         print (f'Start downloading {nfile:d} FITS data you requested;')
-        print (f'after printing a couple of returned files, please check the outdir you specified for further progress.')
+        print (f'please check your outdir: {self.outdir:s} for  progress.')
  
         for l in range (srow, erow+1):
        
             if self.debug:
+                self.logger.debug ('')
+                self.logger.debug (f'l= {l:d}')
                 self.logger.debug ('')
                 self.logger.debug ('self.astrotbl[l]= ')
                 self.logger.debug (self.astrotbl[l])
@@ -368,19 +369,12 @@ class Download:
                      
                 continue
 
-            if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('got here')
-
             try:
                 self.__submit_request (url, filepath)
                 self.ndnloaded = self.ndnloaded + 1
 
                 self.msg =  'Returned file written to: ' + filepath   
            
-#                if (self.ndnloaded == 500):
-#                    print (f'{self.ndnloaded:d} files downloaded....')
-
                 if self.debug:
                     self.logger.debug ('')
                     self.logger.debug ('returned __submit_request')
@@ -424,7 +418,7 @@ class Download:
         self.outdir = outdir
 
         srow = 0;
-        erow = self.len_tbl
+        erow = self.len_tbl - 1
 
         if ('start_row' in kwargs): 
             srow = kwargs.get('start_row')
@@ -434,8 +428,8 @@ class Download:
 
         if (srow < 0):
             sros = 0 
-        if (erow > self.len_tbl):
-            eros = self.len_tbl 
+        if (erow > self.len_tbl - 1):
+            eros = self.len_tbl - 1
 
         if self.debug:
             self.logger.debug ('')
@@ -462,8 +456,8 @@ class Download:
         instrument = '' 
         koaid = ''
         filehand = ''
-        ncaliblist = 0
-        ndnloaded_calib = 0
+        self.ncaliblist = 0
+        self.ndnloaded_calib = 0
         caliblist = []
         
         url = ''
@@ -544,7 +538,7 @@ class Download:
                         self.logger.debug ('')
                         self.logger.debug ('returned __submit_request')
             
-                    ncaliblist = ncaliblist + 1
+                    self.ncaliblist = self.ncaliblist + 1
                     caliblist.append(filepath)
 
                     self.msg = 'caliblist [' + filepath + '] downloaded.'
@@ -557,7 +551,7 @@ class Download:
                 except Exception as e:
                     
                     self.msg = 'Caliblist of [' + koaid + \
-                        '] download error: ' +  str(e)
+                        ']: ' +  str(e)
                     
                     print (f'self.msg= {self.msg:s}')
                     continue
@@ -567,15 +561,12 @@ class Download:
 #
             try:
                 ncalibs = self.__download_calibfiles (filepath)
-                ndnloaded_calib = ndnloaded_calib + ncalibs
+                self.ndnloaded_calib = self.ndnloaded_calib + ncalibs
                 
                 if self.debug:
                     self.logger.debug ('')
                     self.logger.debug ('returned __download_calibfiles')
                     self.logger.debug (f'{ncalibs:d} downloaded')
-
-#                if (self.ndnloaded_calib == 500):
-#                    print (f'{self.ndnloaded_calib:d} calibration files downloaded....')
 
             except Exception as e:
                 
@@ -689,7 +680,7 @@ class Download:
                 ndnloaded = ndnloaded + 1
                 
                 self.msg = 'calib file [' + filepath + '] downloaded.'
-                print (self.msg)
+#                print (self.msg)
 
                 if self.debug:
                     self.logger.debug ('')
