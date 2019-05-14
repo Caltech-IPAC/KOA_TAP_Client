@@ -2,7 +2,6 @@ import os
 import sys
 import io
 import logging
-import initLogger
 
 import json
 import xmltodict 
@@ -23,8 +22,6 @@ class KoaJob:
     def __init__ (self, statusurl, **kwargs):
 
         self.debug = 0 
-        self.loggername = '' 
-        self.logger = None 
         
         self.statusurl = statusurl
 
@@ -49,31 +46,20 @@ class KoaJob:
         self.parameters = ''
         self.resulturl = ''
 
-        if ('loggername' in kwargs):
+        if ('debug' in kwargs):
            
-            self.loggername = kwargs.get('loggername')
+            self.debug = kwargs.get('debug')
            
-            if (len(self.loggername) == 0):
-                self.debug = 0
-            else:
-                self.logger = logging.getLogger (self.loggername)
-                self.handler = self.logger.handlers
-
-                if (len(self.handler) > 0):
-                    self.debug = 1
-                else:
-                    self.debug = 0
- 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter koajob (debug on)')
+            logging.debug ('')
+            logging.debug ('Enter koajob (debug on)')
                                 
         try:
             self.__get_statusjob()
          
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('returned __get_statusjob')
+                logging.debug ('')
+                logging.debug ('returned __get_statusjob')
 
         except Exception as e:
            
@@ -81,14 +67,14 @@ class KoaJob:
             self.msg = 'Error: ' + str(e)
 	    
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'exception: e= {str(e):s}')
+                logging.debug ('')
+                logging.debug (f'exception: e= {str(e):s}')
             
             raise Exception (self.msg)    
         
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('done KoaJob.init:')
+            logging.debug ('')
+            logging.debug ('done KoaJob.init:')
 
         return     
 
@@ -97,9 +83,9 @@ class KoaJob:
     def get_status (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_status')
-            self.logger.debug (f'phase= {self.phase:s}')
+            logging.debug ('')
+            logging.debug ('Enter get_status')
+            logging.debug (f'phase= {self.phase:s}')
 
         if (self.phase.lower() != 'completed'):
 
@@ -107,10 +93,10 @@ class KoaJob:
                 self.__get_statusjob ()
 
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('returned get_statusjob:')
-                    self.logger.debug ('job= ')
-                    self.logger.debug (self.job)
+                    logging.debug ('')
+                    logging.debug ('returned get_statusjob:')
+                    logging.debug ('job= ')
+                    logging.debug (self.job)
 
             except Exception as e:
            
@@ -118,8 +104,8 @@ class KoaJob:
                 self.msg = 'Error: ' + str(e)
 	    
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'exception: e= {str(e):s}')
+                    logging.debug ('')
+                    logging.debug (f'exception: e= {str(e):s}')
                  
                 raise Exception (self.msg)   
 
@@ -129,9 +115,9 @@ class KoaJob:
     def get_resulturl (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_resulturl')
-            self.logger.debug (f'phase= {self.phase:s}')
+            logging.debug ('')
+            logging.debug ('Enter get_resulturl')
+            logging.debug (f'phase= {self.phase:s}')
 
         if (self.phase.lower() != 'completed'):
 
@@ -139,10 +125,10 @@ class KoaJob:
                 self.__get_statusjob ()
 
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('returned get_statusjob:')
-                    self.logger.debug ('job= ')
-                    self.logger.debug (self.job)
+                    logging.debug ('')
+                    logging.debug ('returned get_statusjob:')
+                    logging.debug ('job= ')
+                    logging.debug (self.job)
 
             except Exception as e:
            
@@ -150,8 +136,8 @@ class KoaJob:
                 self.msg = 'Error: ' + str(e)
 	    
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'exception: e= {str(e):s}')
+                    logging.debug ('')
+                    logging.debug (f'exception: e= {str(e):s}')
                  
                 raise Exception (self.msg)   
 
@@ -162,10 +148,10 @@ class KoaJob:
     def get_result (self, outpath):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_result')
-            self.logger.debug (f'resulturl= {self.resulturl:s}')
-            self.logger.debug (f'outpath= {outpath:s}')
+            logging.debug ('')
+            logging.debug ('Enter get_result')
+            logging.debug (f'resulturl= {self.resulturl:s}')
+            logging.debug (f'outpath= {outpath:s}')
 
         if (len(outpath) == 0):
             self.status = 'error'
@@ -179,9 +165,9 @@ class KoaJob:
                 self.__get_statusjob ()
 
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('returned __get_statusjob')
-                    self.logger.debug (f'resulturl= {self.resulturl:s}')
+                    logging.debug ('')
+                    logging.debug ('returned __get_statusjob')
+                    logging.debug (f'resulturl= {self.resulturl:s}')
 
             except Exception as e:
            
@@ -189,8 +175,8 @@ class KoaJob:
                 self.msg = 'Error: ' + str(e)
 	    
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'exception: e= {str(e):s}')
+                    logging.debug ('')
+                    logging.debug (f'exception: e= {str(e):s}')
                 
                 raise Exception (self.msg)    
     
@@ -209,8 +195,8 @@ class KoaJob:
             response = requests.get (self.resulturl, stream=True)
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('resulturl request sent')
+                logging.debug ('')
+                logging.debug ('resulturl request sent')
 
         except Exception as e:
            
@@ -218,8 +204,8 @@ class KoaJob:
             self.msg = 'Error: ' + str(e)
 	    
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'exception: e= {str(e):s}')
+                logging.debug ('')
+                logging.debug (f'exception: e= {str(e):s}')
             
             raise Exception (self.msg)    
      
@@ -233,8 +219,8 @@ class KoaJob:
                 len_data = len(data)            
             
 #                if debug:
-#                    self.logger.debug ('')
-#                    self.logger.debug (f'len_data= {len_data:d}')
+#                    logging.debug ('')
+#                    logging.debug (f'len_data= {len_data:d}')
  
                 if (len_data < 1):
                     break
@@ -247,8 +233,8 @@ class KoaJob:
         self.msg = 'returned table written to output file: ' + outpath
         
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('done writing result to file')
+            logging.debug ('')
+            logging.debug ('done writing result to file')
             
         return        
 
@@ -256,10 +242,10 @@ class KoaJob:
     def get_parameters (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_parameters')
-            self.logger.debug ('parameters:')
-            self.logger.debug (self.parameters)
+            logging.debug ('')
+            logging.debug ('Enter get_parameters')
+            logging.debug ('parameters:')
+            logging.debug (self.parameters)
 
         return (self.parameters)
 
@@ -267,9 +253,9 @@ class KoaJob:
     def get_phase (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_phase')
-            self.logger.debug (f'self.phase= {self.phase:s}')
+            logging.debug ('')
+            logging.debug ('Enter get_phase')
+            logging.debug (f'self.phase= {self.phase:s}')
 
         if ((self.phase.lower() != 'completed') and \
 	    (self.phase.lower() != 'error')):
@@ -278,10 +264,10 @@ class KoaJob:
                 self.__get_statusjob ()
 
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('returned get_statusjob:')
-                    self.logger.debug ('job= ')
-                    self.logger.debug (self.job)
+                    logging.debug ('')
+                    logging.debug ('returned get_statusjob:')
+                    logging.debug ('job= ')
+                    logging.debug (self.job)
 
             except Exception as e:
            
@@ -289,14 +275,14 @@ class KoaJob:
                 self.msg = 'Error: ' + str(e)
 	    
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'exception: e= {str(e):s}')
+                    logging.debug ('')
+                    logging.debug (f'exception: e= {str(e):s}')
                  
                 raise Exception (self.msg)   
 
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'phase= {self.phase:s}')
+                logging.debug ('')
+                logging.debug (f'phase= {self.phase:s}')
 
         return (self.phase)
     
@@ -305,15 +291,15 @@ class KoaJob:
     def get_jobid (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_jobid')
+            logging.debug ('')
+            logging.debug ('Enter get_jobid')
 
         if (len(self.jobid) == 0):
             self.jobid = self.job['uws:jobId']
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'jobid= {self.jobid:s}')
+            logging.debug ('')
+            logging.debug (f'jobid= {self.jobid:s}')
 
         return (self.jobid)
     
@@ -321,16 +307,16 @@ class KoaJob:
     def get_processid (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_processid')
-#            self.logger.debug (f'processid= {self.processid:s}')
+            logging.debug ('')
+            logging.debug ('Enter get_processid')
+#            logging.debug (f'processid= {self.processid:s}')
 
         if (len(self.processid) == 0):
             self.processid = self.job['uws:processId']
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'processid= {self.processid:s}')
+            logging.debug ('')
+            logging.debug (f'processid= {self.processid:s}')
 
         return (self.processid)
     
@@ -345,16 +331,16 @@ class KoaJob:
     def get_starttime (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_starttime')
-#            self.logger.debug (f'starttime= {self.starttime:s}')
+            logging.debug ('')
+            logging.debug ('Enter get_starttime')
+#            logging.debug (f'starttime= {self.starttime:s}')
 
         if (len(self.starttime) == 0):
             self.starttime = self.job['uws:startTime']
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'starttime= {self.starttime:s}')
+            logging.debug ('')
+            logging.debug (f'starttime= {self.starttime:s}')
 
         return (self.starttime)
     
@@ -362,9 +348,9 @@ class KoaJob:
     def get_endtime (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_endtime')
-#            self.logger.debug (f'endtime= {self.endtime:s}')
+            logging.debug ('')
+            logging.debug ('Enter get_endtime')
+#            logging.debug (f'endtime= {self.endtime:s}')
 
         if (self.phase.lower() != 'completed'):
 
@@ -372,10 +358,10 @@ class KoaJob:
                 self.__get_statusjob ()
 
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('returned get_statusjob:')
-                    self.logger.debug ('job= ')
-                    self.logger.debug (self.job)
+                    logging.debug ('')
+                    logging.debug ('returned get_statusjob:')
+                    logging.debug ('job= ')
+                    logging.debug (self.job)
 
             except Exception as e:
            
@@ -383,16 +369,16 @@ class KoaJob:
                 self.msg = 'Error: ' + str(e)
 	    
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'exception: e= {str(e):s}')
+                    logging.debug ('')
+                    logging.debug (f'exception: e= {str(e):s}')
                  
                 raise Exception (self.msg)   
 
         self.endtime = self.job['uws:endTime']
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'endtime= {self.endtime:s}')
+            logging.debug ('')
+            logging.debug (f'endtime= {self.endtime:s}')
 
         return (self.endtime)
     
@@ -401,9 +387,9 @@ class KoaJob:
     def get_executionduration (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_executionduration')
-#            self.logger.debug (f'executionduration= {self.executionduration:s}')
+            logging.debug ('')
+            logging.debug ('Enter get_executionduration')
+#            logging.debug (f'executionduration= {self.executionduration:s}')
 
         
         if (self.phase.lower() != 'completed'):
@@ -412,10 +398,10 @@ class KoaJob:
                 self.__get_statusjob ()
 
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('returned get_statusjob:')
-                    self.logger.debug ('job= ')
-                    self.logger.debug (self.job)
+                    logging.debug ('')
+                    logging.debug ('returned get_statusjob:')
+                    logging.debug ('job= ')
+                    logging.debug (self.job)
 
             except Exception as e:
            
@@ -423,16 +409,16 @@ class KoaJob:
                 self.msg = 'Error: ' + str(e)
 	    
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'exception: e= {str(e):s}')
+                    logging.debug ('')
+                    logging.debug (f'exception: e= {str(e):s}')
                  
                 raise Exception (self.msg)   
 
         self.executionduration = self.job['uws:executionDuration']
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'executionduration= {self.executionduration:s}')
+            logging.debug ('')
+            logging.debug (f'executionduration= {self.executionduration:s}')
 
         return (self.executionduration)
 
@@ -440,9 +426,9 @@ class KoaJob:
     def get_destruction (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_destruction')
-#            self.logger.debug (f'destruction= {self.destruction:s}')
+            logging.debug ('')
+            logging.debug ('Enter get_destruction')
+#            logging.debug (f'destruction= {self.destruction:s}')
 
         if (self.phase.lower() != 'completed'):
 
@@ -450,10 +436,10 @@ class KoaJob:
                 self.__get_statusjob ()
 
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('returned get_statusjob:')
-                    self.logger.debug ('job= ')
-                    self.logger.debug (self.job)
+                    logging.debug ('')
+                    logging.debug ('returned get_statusjob:')
+                    logging.debug ('job= ')
+                    logging.debug (self.job)
 
             except Exception as e:
            
@@ -461,16 +447,16 @@ class KoaJob:
                 self.msg = 'Error: ' + str(e)
 	    
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'exception: e= {str(e):s}')
+                    logging.debug ('')
+                    logging.debug (f'exception: e= {str(e):s}')
                  
                 raise Exception (self.msg)   
 
         self.destruction = self.job['uws:destruction']
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'destruction= {self.destruction:s}')
+            logging.debug ('')
+            logging.debug (f'destruction= {self.destruction:s}')
 
         return (self.destruction)
     
@@ -478,9 +464,9 @@ class KoaJob:
     def get_errorsummary (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_errorsummary')
-#            self.logger.debug (f'errorsummary= {self.errorsummary:s}')
+            logging.debug ('')
+            logging.debug ('Enter get_errorsummary')
+#            logging.debug (f'errorsummary= {self.errorsummary:s}')
 
         if ((self.phase.lower() != 'error') and \
 	    (self.phase.lower() != 'completed')):
@@ -489,10 +475,10 @@ class KoaJob:
                 self.__get_statusjob ()
 
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('returned get_statusjob:')
-                    self.logger.debug ('job= ')
-                    self.logger.debug (self.job)
+                    logging.debug ('')
+                    logging.debug ('returned get_statusjob:')
+                    logging.debug ('job= ')
+                    logging.debug (self.job)
 
             except Exception as e:
            
@@ -500,8 +486,8 @@ class KoaJob:
                 self.msg = 'Error: ' + str(e)
 	    
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'exception: e= {str(e):s}')
+                    logging.debug ('')
+                    logging.debug (f'exception: e= {str(e):s}')
                  
                 raise Exception (self.msg)   
 	
@@ -510,8 +496,8 @@ class KoaJob:
         
             self.msg = 'The process is still running.'
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'msg= {self.msg:s}')
+                logging.debug ('')
+                logging.debug (f'msg= {self.msg:s}')
 
             return (self.msg)
 	
@@ -520,8 +506,8 @@ class KoaJob:
             self.msg = 'Process completed without error message.'
             
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'msg= {self.msg:s}')
+                logging.debug ('')
+                logging.debug (f'msg= {self.msg:s}')
 
             return (self.msg)
         
@@ -530,8 +516,8 @@ class KoaJob:
             self.errorsummary = self.job['uws:errorSummary']['uws:message']
 
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'errorsummary= {self.errorsummary:s}')
+                logging.debug ('')
+                logging.debug (f'errorsummary= {self.errorsummary:s}')
 
             return (self.errorsummary)
     
@@ -539,9 +525,9 @@ class KoaJob:
     def __get_statusjob (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter __get_statusjob')
-            self.logger.debug (f'statusurl= {self.statusurl:s}')
+            logging.debug ('')
+            logging.debug ('Enter __get_statusjob')
+            logging.debug (f'statusurl= {self.statusurl:s}')
 
 #
 #   self.status doesn't exist, call get_status
@@ -556,8 +542,8 @@ class KoaJob:
 	        stream=True)
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('statusurl request sent')
+                logging.debug ('')
+                logging.debug ('statusurl request sent')
 
         except Exception as e:
            
@@ -565,27 +551,27 @@ class KoaJob:
             self.msg = 'Error: ' + str(e)
 	    
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'exception: e= {str(e):s}')
+                logging.debug ('')
+                logging.debug (f'exception: e= {str(e):s}')
             
             raise Exception (self.msg)    
      
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('response returned')
-            self.logger.debug (f'status_code= {self.response.status_code:d}')
+            logging.debug ('')
+            logging.debug ('response returned')
+            logging.debug (f'status_code= {self.response.status_code:d}')
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('response.text= ')
-            self.logger.debug (self.response.text)
+            logging.debug ('')
+            logging.debug ('response.text= ')
+            logging.debug (self.response.text)
         
         self.statusstruct = self.response.text
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('statusstruct= ')
-            self.logger.debug (self.statusstruct)
+            logging.debug ('')
+            logging.debug ('statusstruct= ')
+            logging.debug (self.statusstruct)
         
 #
 #    parse returned status xml structure for parameters
@@ -593,15 +579,15 @@ class KoaJob:
         soup = bs.BeautifulSoup (self.statusstruct, 'lxml')
             
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('soup initialized')
+            logging.debug ('')
+            logging.debug ('soup initialized')
         
         self.parameters = soup.find('uws:parameters')
         
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('self.parameters:')
-            self.logger.debug (self.parameters)
+            logging.debug ('')
+            logging.debug ('self.parameters:')
+            logging.debug (self.parameters)
         
         
 #
@@ -613,29 +599,29 @@ class KoaJob:
         self.phase = self.job['uws:phase']
         
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'self.phase.lower():{ self.phase.lower():s}')
+            logging.debug ('')
+            logging.debug (f'self.phase.lower():{ self.phase.lower():s}')
         
        
         if (self.phase.lower() == 'completed'):
 
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('xxx1: got here')
+                logging.debug ('')
+                logging.debug ('xxx1: got here')
             
             results = self.job['uws:results']
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('results')
-                self.logger.debug (results)
+                logging.debug ('')
+                logging.debug ('results')
+                logging.debug (results)
             
             result = self.job['uws:results']['uws:result']
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('result')
-                self.logger.debug (result)
+                logging.debug ('')
+                logging.debug ('result')
+                logging.debug (result)
             
 
             self.resulturl = \
@@ -646,11 +632,11 @@ class KoaJob:
 
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('self.job:')
-            self.logger.debug (self.job)
-            self.logger.debug (f'self.phase.lower(): {self.phase.lower():s}')
-            self.logger.debug (f'self.resulturl: {self.resulturl:s}')
+            logging.debug ('')
+            logging.debug ('self.job:')
+            logging.debug (self.job)
+            logging.debug (f'self.phase.lower(): {self.phase.lower():s}')
+            logging.debug (f'self.resulturl: {self.resulturl:s}')
 
         return
 

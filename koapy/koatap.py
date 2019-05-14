@@ -2,7 +2,6 @@ import os
 import sys
 import io
 import logging
-import initLogger
 import time
 
 import json
@@ -69,8 +68,6 @@ class KoaTap:
         self.outpath = ''
         
         self.debug = 0  
-        self.loggername = ''
-        self.logger = None
  
         self.datadict = dict()
         
@@ -84,25 +81,13 @@ class KoaTap:
         self.koajob = None
         self.astropytbl = None
         
-        if ('loggername' in kwargs):
-
-            self.loggername = kwargs.get('loggername') 
-           
-            if (len(self.loggername) == 0):
-                self.debug = 0
-            else:
-                self.logger = logging.getLogger (self.loggername)
-                self.handler = self.logger.handlers
-
-                if (len(self.handler) > 0):
-                    self.debug = 1
-                else:
-                    self.debug = 0
-
+        if ('debug' in kwargs):
+            self.debug = kwargs.get('debug') 
  
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter koatap (debug on)')
+            logging.debug ('')
+            logging.debug ('')
+            logging.debug ('Enter koatap (debug on)')
                                 
         if ('cookiefile' in kwargs):
             self.cookiepath = kwargs.get('cookiefile')
@@ -123,27 +108,19 @@ class KoaTap:
         if ('format' in kwargs):
            self.format = kwargs.get('format')
 
-        self.maxrec = '5000'
+        self.maxrec = '0'
         if ('maxrec' in kwargs):
            self.maxrec = kwargs.get('maxrec')
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter KoaTap.init:')
-            self.logger.debug (f'url= {self.url:s}')
+            logging.debug ('')
+            logging.debug ('Enter KoaTap.init:')
+            logging.debug (f'url= {self.url:s}')
 
 #
 #    turn on server debug
 #   
         pid = os.getpid()
-#        debugfname = '/tmp/koatap.server_' + str(pid) + '.debug' 
-#        debugfname = '/home/mihseh/tap/server/koatap.server.debug' 
-        
-#        if self.debug:
-#            self.logger.debug ('')
-#            self.logger.debug (f'debugfname= {debugfname:s}')
-   
-#        self.datadict['debug'] = debugfname
         self.datadict['request'] = self.request              
         self.datadict['lang'] = self.lang              
         self.datadict['phase'] = self.phase              
@@ -153,16 +130,16 @@ class KoaTap:
         for key in self.datadict:
 
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'key= {key:s} val= {self.datadict[key]:s}')
+                logging.debug ('')
+                logging.debug (f'key= {key:s} val= {self.datadict[key]:s}')
     
         
         self.cookiejar = http.cookiejar.MozillaCookieJar (self.cookiepath)
          
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('cookiejar')
-            self.logger.debug (self.cookiejar)
+            logging.debug ('')
+            logging.debug ('cookiejar')
+            logging.debug (self.cookiejar)
    
         if (len(self.cookiepath) > 0):
         
@@ -170,19 +147,19 @@ class KoaTap:
                 self.cookiejar.load (ignore_discard=True, ignore_expires=True);
             
                 if self.debug:
-                    self.logger.debug (
+                    logging.debug (
                         'cookie loaded from %s' % self.cookiepath)
         
                     for cookie in self.cookiejar:
-                        self.logger.debug ('cookie:')
-                        self.logger.debug (cookie)
+                        logging.debug ('cookie:')
+                        logging.debug (cookie)
                         
-                        self.logger.debug (f'cookie.name= {cookie.name:s}')
-                        self.logger.debug (f'cookie.value= {cookie.value:s}')
-                        self.logger.debug (f'cookie.domain= {cookie.domain:s}')
+                        logging.debug (f'cookie.name= {cookie.name:s}')
+                        logging.debug (f'cookie.value= {cookie.value:s}')
+                        logging.debug (f'cookie.domain= {cookie.domain:s}')
             except:
                 if self.debug:
-                    self.logger.debug ('KoaTap: loadCookie exception')
+                    logging.debug ('KoaTap: loadCookie exception')
  
                 self.msg = 'Error: failed to load cookie file.'
                 raise Exception (self.msg) 
@@ -193,8 +170,8 @@ class KoaTap:
     def send_async (self, query, **kwargs):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter send_async:')
+            logging.debug ('')
+            logging.debug ('Enter send_async:')
  
         self.async_job = 1
         self.sync_job = 0
@@ -202,9 +179,9 @@ class KoaTap:
         url = self.url + '/async'
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'url= {url:s}')
-            self.logger.debug (f'query= {query:s}')
+            logging.debug ('')
+            logging.debug (f'url= {url:s}')
+            logging.debug (f'query= {query:s}')
 
         self.datadict['query'] = query 
 
@@ -220,8 +197,8 @@ class KoaTap:
 
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'format= {self.format:s}')
+                logging.debug ('')
+                logging.debug (f'format= {self.format:s}')
             
         if ('maxrec' in kwargs):
             
@@ -229,8 +206,8 @@ class KoaTap:
             self.datadict['maxrec'] = self.maxrec              
             
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'maxrec= {self.maxrec:s}')
+                logging.debug ('')
+                logging.debug (f'maxrec= {self.maxrec:s}')
         
         self.oupath = ''
         if ('outpath' in kwargs):
@@ -241,22 +218,22 @@ class KoaTap:
             if (len(self.cookiepath) > 0):
         
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('xxx1')
+                    logging.debug ('')
+                    logging.debug ('xxx1')
 
                 self.response = requests.post (url, data= self.datadict, \
 	            cookies=self.cookiejar, allow_redirects=False)
             else: 
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('xxx2')
+                    logging.debug ('')
+                    logging.debug ('xxx2')
 
                 self.response = requests.post (url, data= self.datadict, \
 	            allow_redirects=False)
 
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('request sent')
+                logging.debug ('')
+                logging.debug ('request sent')
 
         except Exception as e:
            
@@ -264,8 +241,8 @@ class KoaTap:
             self.msg = 'Error: ' + str(e)
 	    
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'exception: e= {str(e):s}')
+                logging.debug ('')
+                logging.debug (f'exception: e= {str(e):s}')
             
             return (self.msg)
 
@@ -273,19 +250,19 @@ class KoaTap:
         self.statusurl = ''
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'status_code= {self.response.status_code:d}')
-            self.logger.debug ('self.response: ')
-            self.logger.debug (self.response)
-            self.logger.debug ('self.response.headers: ')
-            self.logger.debug (self.response.headers)
+            logging.debug ('')
+            logging.debug (f'status_code= {self.response.status_code:d}')
+            logging.debug ('self.response: ')
+            logging.debug (self.response)
+            logging.debug ('self.response.headers: ')
+            logging.debug (self.response.headers)
             
             
 #        print (f'status_code= {self.response.status_code:d}')
            
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'status_code= {self.response.status_code:d}')
+            logging.debug ('')
+            logging.debug (f'status_code= {self.response.status_code:d}')
             
 #
 #    if status_code != 303: probably error message
@@ -293,16 +270,16 @@ class KoaTap:
         if (self.response.status_code != 303):
             
             if debug:
-                self.logger.debug ('')
-                self.logger.debug ('case: not re-direct')
+                logging.debug ('')
+                logging.debug ('case: not re-direct')
        
             self.content_type = self.response.headers['Content-type']
             self.encoding = self.response.encoding
         
             if debug:
-                self.logger.debug ('')
-                self.logger.debug (f'content_type= {self.content_type:s}')
-                self.logger.debug (f'encoding= {self.encoding:s}')
+                logging.debug ('')
+                logging.debug (f'content_type= {self.content_type:s}')
+                logging.debug (f'encoding= {self.encoding:s}')
 
             data = None
             self.status = ''
@@ -318,16 +295,16 @@ class KoaTap:
                 except Exception as e:
                 
                     if debug:
-                        self.logger.debug ('')
-                        self.logger.debug (f'JSON object parse error: {str(e):s}')
+                        logging.debug ('')
+                        logging.debug (f'JSON object parse error: {str(e):s}')
       
                     self.status = 'error'
                     self.msg = 'JSON parse error: ' + str(e)
                 
                     if debug:
-                        self.logger.debug ('')
-                        self.logger.debug (f'status= {self.status:s}')
-                        self.logger.debug (f'msg= {self.msg:s}')
+                        logging.debug ('')
+                        logging.debug (f'status= {self.status:s}')
+                        logging.debug (f'msg= {self.msg:s}')
 
                     return (self.msg)
 
@@ -335,9 +312,9 @@ class KoaTap:
                 self.msg = data['msg']
                 
                 if debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'status= {self.status:s}')
-                    self.logger.debug (f'msg= {self.msg:s}')
+                    logging.debug ('')
+                    logging.debug (f'status= {self.status:s}')
+                    logging.debug (f'msg= {self.msg:s}')
 
                 if (self.status == 'error'):
                     self.msg = 'Error: ' + data['msg']
@@ -351,8 +328,8 @@ class KoaTap:
             self.statusurl = self.response.headers['Location']
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'statusurl= {self.statusurl:s}')
+            logging.debug ('')
+            logging.debug (f'statusurl= {self.statusurl:s}')
 
         if (len(self.statusurl) == 0):
             self.msg = 'Error: failed to retrieve statusurl from re-direct'
@@ -363,12 +340,12 @@ class KoaTap:
 #
         try:
             self.koajob = koajob.KoaJob (\
-                self.statusurl, loggername=self.loggername)
+                self.statusurl, debug=1)
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'koajob initialized')
-                self.logger.debug (f'phase= {self.koajob.phase:s}')
+                logging.debug ('')
+                logging.debug (f'koajob initialized')
+                logging.debug (f'phase= {self.koajob.phase:s}')
        
        
         except Exception as e:
@@ -377,8 +354,8 @@ class KoaTap:
             self.msg = 'Error: ' + str(e)
 	    
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'exception: e= {str(e):s}')
+                logging.debug ('')
+                logging.debug (f'exception: e= {str(e):s}')
             
             return (self.msg)    
         
@@ -389,8 +366,8 @@ class KoaTap:
         phase = self.koajob.phase
         
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'phase: {phase:s}')
+            logging.debug ('')
+            logging.debug (f'phase: {phase:s}')
             
         if ((phase.lower() != 'completed') and (phase.lower() != 'error')):
             
@@ -401,14 +378,14 @@ class KoaTap:
                 phase = self.koajob.get_phase()
         
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('here0-1')
-                    self.logger.debug (f'phase= {phase:s}')
+                    logging.debug ('')
+                    logging.debug ('here0-1')
+                    logging.debug (f'phase= {phase:s}')
             
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('here0-2')
-            self.logger.debug (f'phase= {phase:s}')
+            logging.debug ('')
+            logging.debug ('here0-2')
+            logging.debug (f'phase= {phase:s}')
             
 #
 #    phase == 'error'
@@ -419,22 +396,22 @@ class KoaTap:
             self.msg = self.koajob.errorsummary
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'returned get_errorsummary: {self.msg:s}')
+                logging.debug ('')
+                logging.debug (f'returned get_errorsummary: {self.msg:s}')
             
             return (self.msg)
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('here2: phase is completed')
+            logging.debug ('')
+            logging.debug ('here2: phase is completed')
             
 #
 #   phase == 'completed' 
 #
         self.resulturl = self.koajob.resulturl
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'resulturl= {self.resulturl:s}')
+            logging.debug ('')
+            logging.debug (f'resulturl= {self.resulturl:s}')
 
 #
 #   send resulturl to retrieve result table
@@ -443,8 +420,8 @@ class KoaTap:
             self.response_result = requests.get (self.resulturl, stream=True)
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('resulturl request sent')
+                logging.debug ('')
+                logging.debug ('resulturl request sent')
 
         except Exception as e:
            
@@ -452,8 +429,8 @@ class KoaTap:
             self.msg = 'Error: ' + str(e)
 	    
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'exception: e= {str(e):s}')
+                logging.debug ('')
+                logging.debug (f'exception: e= {str(e):s}')
             
             raise Exception (self.msg)    
      
@@ -462,14 +439,14 @@ class KoaTap:
 # save table to file
 #
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('got here')
+            logging.debug ('')
+            logging.debug ('got here')
 
         self.msg = self.save_data (self.outpath)
             
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'returned save_data: msg= {self.msg:s}')
+            logging.debug ('')
+            logging.debug (f'returned save_data: msg= {self.msg:s}')
 
         return (self.msg)
 
@@ -482,8 +459,8 @@ class KoaTap:
            
             self.resulturl = self.koajob.resulturl
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'resulturl= {self.resulturl:s}')
+                logging.debug ('')
+                logging.debug (f'resulturl= {self.resulturl:s}')
 
             return (self.resulturl)
 
@@ -491,8 +468,8 @@ class KoaTap:
             self.koajob.get_result (self.outpath)
 
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'returned self.koajob.get_result')
+                logging.debug ('')
+                logging.debug (f'returned self.koajob.get_result')
         
         except Exception as e:
             
@@ -500,29 +477,29 @@ class KoaTap:
             self.msg = 'Error: ' + str(e)
 	    
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'exception: e= {str(e):s}')
+                logging.debug ('')
+                logging.debug (f'exception: e= {str(e):s}')
             
             return (self.msg)    
         
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('got here: download result successful')
+            logging.debug ('')
+            logging.debug ('got here: download result successful')
       
         self.status = 'ok'
         self.msg = 'Result downloaded to file: [' + self.outpath + ']'
 	    
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'self.msg = {self.msg:s}')
+            logging.debug ('')
+            logging.debug (f'self.msg = {self.msg:s}')
        
         
 	self.msg = self.save_data (self.outpath)
             
 	
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'returned save_data: msg= {self.msg:s}')
+            logging.debug ('')
+            logging.debug (f'returned save_data: msg= {self.msg:s}')
 
 
         return (self.msg) 
@@ -532,15 +509,15 @@ class KoaTap:
     def send_sync (self, query, **kwargs):
        
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter send_sync:')
-            self.logger.debug (f'query= {query:s}')
+            logging.debug ('')
+            logging.debug ('Enter send_sync:')
+            logging.debug (f'query= {query:s}')
  
         url = self.url + '/sync'
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'url= {url:s}')
+            logging.debug ('')
+            logging.debug (f'url= {url:s}')
 
         self.sync_job = 1
         self.async_job = 0
@@ -558,8 +535,8 @@ class KoaTap:
 
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'format= {self.format:s}')
+                logging.debug ('')
+                logging.debug (f'format= {self.format:s}')
             
         if ('maxrec' in kwargs):
             
@@ -567,16 +544,16 @@ class KoaTap:
             self.datadict['maxrec'] = self.maxrec              
             
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'maxrec= {self.maxrec:s}')
+                logging.debug ('')
+                logging.debug (f'maxrec= {self.maxrec:s}')
         
         self.outpath = ''
         if ('outpath' in kwargs):
             self.outpath = kwargs.get('outpath')
         
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'outpath= {self.outpath:s}')
+            logging.debug ('')
+            logging.debug (f'outpath= {self.outpath:s}')
 	
         try:
             if (len(self.cookiepath) > 0):
@@ -588,8 +565,8 @@ class KoaTap:
                     allow_redicts=False, stream=True)
 
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('request sent')
+                logging.debug ('')
+                logging.debug ('request sent')
 
         except Exception as e:
            
@@ -597,8 +574,8 @@ class KoaTap:
             self.msg = 'Error: ' + str(e)
 
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'exception: e= {str(e):s}')
+                logging.debug ('')
+                logging.debug (f'exception: e= {str(e):s}')
             
             return (self.msg)
 
@@ -612,8 +589,8 @@ class KoaTap:
         self.encoding = self.response.encoding
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'content_type= {self.content_type:s}')
+            logging.debug ('')
+            logging.debug (f'content_type= {self.content_type:s}')
        
         data = None
         self.status = ''
@@ -626,8 +603,8 @@ class KoaTap:
                 data = self.response.json()
             except Exception:
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug ('JSON object parse error')
+                    logging.debug ('')
+                    logging.debug ('JSON object parse error')
       
                 self.status = 'error'
                 self.msg = 'Error: returned JSON object parse error'
@@ -635,16 +612,16 @@ class KoaTap:
                 return (self.msg)
             
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'status= {self.status:s}')
-                self.logger.debug (f'msg= {self.msg:s}')
+                logging.debug ('')
+                logging.debug (f'status= {self.status:s}')
+                logging.debug (f'msg= {self.msg:s}')
      
 #
 # download resulturl and save table to file
 #
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('send request to get resulturl')
+            logging.debug ('')
+            logging.debug ('send request to get resulturl')
 
 
 
@@ -654,14 +631,14 @@ class KoaTap:
 # save table to file
 #
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('got here')
+            logging.debug ('')
+            logging.debug ('got here')
 
         self.msg = self.save_data (self.outpath)
             
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'returned save_data: msg= {self.msg:s}')
+            logging.debug ('')
+            logging.debug (f'returned save_data: msg= {self.msg:s}')
 
         return (self.msg)
 
@@ -672,9 +649,9 @@ class KoaTap:
     def save_data (self, outpath):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter save_data:')
-            self.logger.debug (f'outpath= {outpath:s}')
+            logging.debug ('')
+            logging.debug ('Enter save_data:')
+            logging.debug (f'outpath= {outpath:s}')
       
         tmpfile_created = 0
 
@@ -686,12 +663,12 @@ class KoaTap:
             tmpfile_created = 1 
             
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'tmpfile_created = {tmpfile_created:d}')
+                logging.debug ('')
+                logging.debug (f'tmpfile_created = {tmpfile_created:d}')
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'fpath= {fpath:s}')
+            logging.debug ('')
+            logging.debug (f'fpath= {fpath:s}')
      
         fp = open (fpath, "wb")
             
@@ -707,14 +684,14 @@ class KoaTap:
         fp.close()
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'data written to file: {fpath:s}')
+            logging.debug ('')
+            logging.debug (f'data written to file: {fpath:s}')
                 
         if (len(self.outpath) >  0):
             
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'xxx1')
+                logging.debug ('')
+                logging.debug (f'xxx1')
                 
             self.msg = 'Result downloaded to file [' + self.outpath + ']'
         else:
@@ -722,22 +699,22 @@ class KoaTap:
 #    read temp outpath to astropy table
 #
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'xxx2')
+                logging.debug ('')
+                logging.debug (f'xxx2')
                 
             self.astropytbl = Table.read (fpath, format='votable')	    
             self.msg = 'Result saved in memory (astropy table).'
       
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'{self.msg:s}')
+            logging.debug ('')
+            logging.debug (f'{self.msg:s}')
      
         if (tmpfile_created == 1):
             os.remove (fpath)
             
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('tmpfile {fpath:s} deleted')
+                logging.debug ('')
+                logging.debug ('tmpfile {fpath:s} deleted')
 
         return (self.msg)
 
@@ -746,8 +723,8 @@ class KoaTap:
     def print_data (self):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter print_data:')
+            logging.debug ('')
+            logging.debug ('Enter print_data:')
 
         try:
 
@@ -755,8 +732,8 @@ class KoaTap:
             len_table = len (self.astropytbl)
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'len_table= {len_table:d}')
+                logging.debug ('')
+                logging.debug (f'len_table= {len_table:d}')
        
             for i in range (0, len_table):
 	    
@@ -779,10 +756,10 @@ class KoaTap:
     def get_data (self, resultpath):
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug ('Enter get_data:')
-            self.logger.debug (f'async_job = {self.async_job:d}')
-            self.logger.debug (f'resultpath = {resultpath:s}')
+            logging.debug ('')
+            logging.debug ('Enter get_data:')
+            logging.debug (f'async_job = {self.async_job:d}')
+            logging.debug (f'resultpath = {resultpath:s}')
 
 
 
@@ -793,8 +770,8 @@ class KoaTap:
             self.astropytbl.write (resultpath)
 
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('astropytbl written to resultpath')
+                logging.debug ('')
+                logging.debug ('astropytbl written to resultpath')
 
             self.msg = 'Result written to file: [' + resultpath + ']'
         
@@ -802,8 +779,8 @@ class KoaTap:
             phase = self.koajob.get_phase()
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug (f'returned koajob.get_phase: phase= {phase:s}')
+                logging.debug ('')
+                logging.debug (f'returned koajob.get_phase: phase= {phase:s}')
 
             while ((phase.lower() != 'completed') and \
 	        (phase.lower() != 'error')):
@@ -811,8 +788,8 @@ class KoaTap:
                 phase = self.koajob.get_phase()
         
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (\
+                    logging.debug ('')
+                    logging.debug (\
                         f'returned koajob.get_phase: phase= {phase:s}')
 
 #
@@ -824,8 +801,8 @@ class KoaTap:
                 self.msg = self.koajob.errorsummary
         
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'returned get_errorsummary: {self.msg:s}')
+                    logging.debug ('')
+                    logging.debug (f'returned get_errorsummary: {self.msg:s}')
             
                 return (self.msg)
 
@@ -836,8 +813,8 @@ class KoaTap:
                 self.koajob.get_result (resultpath)
 
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'returned koajob.get_result')
+                    logging.debug ('')
+                    logging.debug (f'returned koajob.get_result')
         
             except Exception as e:
             
@@ -845,21 +822,21 @@ class KoaTap:
                 self.msg = 'Error: ' + str(e)
 	    
                 if self.debug:
-                    self.logger.debug ('')
-                    self.logger.debug (f'exception: e= {str(e):s}')
+                    logging.debug ('')
+                    logging.debug (f'exception: e= {str(e):s}')
             
                 return (self.msg)    
         
             if self.debug:
-                self.logger.debug ('')
-                self.logger.debug ('got here: download result successful')
+                logging.debug ('')
+                logging.debug ('got here: download result successful')
 
             self.status = 'ok'
             self.msg = 'Result downloaded to file: [' + resultpath + ']'
 
         if self.debug:
-            self.logger.debug ('')
-            self.logger.debug (f'self.msg = {self.msg:s}')
+            logging.debug ('')
+            logging.debug (f'self.msg = {self.msg:s}')
        
         return (self.msg) 
 
