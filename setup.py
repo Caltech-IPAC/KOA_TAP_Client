@@ -2,11 +2,11 @@ from setuptools import setup, find_packages
 
 extensions = []
 
-reqs = ['astroquery', 'requests']
+reqs = ['astropy', 'requests']
 
 setup(
     name="koapy",
-    version="1.0.0",
+    version="1.0",
     author="Mihseh Kong",
     classifiers=[
         'Intended Audience :: Science/Research',
