@@ -375,12 +375,12 @@ class Archive:
             logging.debug (f'datetime= {self.datetime:s}')
             logging.debug (f'outpath= {self.outpath:s}')
 
-#        if ('cookiepath' in kwargs): 
-#            self.cookiepath = kwargs.get('cookiepath')
+        if ('cookiepath' in kwargs): 
+            self.cookiepath = kwargs.get('cookiepath')
 
-#        if self.debug:
-#            logging.debug ('')
-#            logging.debug (f'cookiepath= {self.cookiepath:s}')
+        if self.debug:
+            logging.debug ('')
+            logging.debug (f'cookiepath= {self.cookiepath:s}')
 
         self.format = 'ipac'
         if ('format' in kwargs): 
@@ -773,21 +773,39 @@ class Archive:
         self.tap = None
         if (len(cookiepath) > 0):
 
-            self.tap = koatap.KoaTap (self.tap_url, \
-                format=self.format, \
-                maxrec=self.maxrec, \
-                cookiefile=cookiepath, \
-                debug=1)
+            if (self.debug):
+                self.tap = koatap.KoaTap (self.tap_url, \
+                    format=self.format, \
+                    maxrec=self.maxrec, \
+                    cookiefile=cookiepath, \
+                    debug=1)
+            else:
+                self.tap = koatap.KoaTap (self.tap_url, \
+                    format=self.format, \
+                    maxrec=self.maxrec, \
+                    cookiefile=cookiepath)
+
+            if self.debug:
+                logging.debug('')
+                logging.debug('koaTap initialized with cookie')
 
         else:    
-            self.tap = koatap.KoaTap (self.tap_url, \
-	        format=self.format, \
-		maxrec=self.maxrec, \
-		deubg=1)
+            if (self.debug):
+                self.tap = koatap.KoaTap (self.tap_url, \
+	            format=self.format, \
+                    maxrec=self.maxrec, \
+                    debug=1)
+            else: 
+                self.tap = koatap.KoaTap (self.tap_url, \
+	            format=self.format, \
+		    maxrec=self.maxrec)
         
+            if self.debug:
+                logging.debug('')
+                logging.debug('koaTap initialized without cookie')
+
         if self.debug:
             logging.debug('')
-            logging.debug('koaTap initialized')
             logging.debug(f'query= {query:s}')
             logging.debug('call self.tap.send_async')
 
@@ -1187,6 +1205,8 @@ class Archive:
         koaid = ''
         filehand = ''
         self.ndnloaded = 0
+        self.ndnloaded_calib = 0
+        self.ncaliblist = 0
       
         nfile = erow - srow + 1   
         
@@ -1285,6 +1305,10 @@ class Archive:
 #
             if (calibfile == 1):
 
+                if self.debug:
+                    logging.debug ('')
+                    logging.debug ('calibfile=1: downloading calibfiles')
+	    
                 koaid_base = '' 
                 ind = -1
                 ind = koaid.rfind ('.')
@@ -1307,6 +1331,10 @@ class Archive:
 	    
                 if (not isExist):
 
+                    if self.debug:
+                        logging.debug ('')
+                        logging.debug ('downloading calibfiles')
+	    
                     url = self.caliburl \
                         + 'instrument=' + instrument \
                         + '&koaid=' + koaid
@@ -1335,11 +1363,16 @@ class Archive:
 #     
                 isExist = os.path.exists (caliblist)
 	  
-                """  
+                  
                 if (isExist):
 
+                    if self.debug:
+                        logging.debug ('')
+                        logging.debug ('list exist: downloading calibfiles')
+	    
                     try:
-                        ncalibs = self.__download_calibfiles (caliblist)
+                        ncalibs = self.__download_calibfiles ( \
+                            caliblist, cookiejar)
                         self.ndnloaded_calib = self.ndnloaded_calib + ncalibs
                 
                         if self.debug:
@@ -1352,7 +1385,7 @@ class Archive:
                         self.msg = 'Error downloading files in caliblist [' + \
                             filepath + ']: ' +  str(e)
                         continue
-                """
+                
 
         if self.debug:
             logging.debug ('')
@@ -1362,15 +1395,15 @@ class Archive:
             logging.debug (\
                 f'{self.ndnloaded_calib:d} calibration files downloaded.')
 
-        print (f'A total of {self.ndnloaded:d} files downloaded.')
-        print (f'{self.ncaliblist:d} calibration list downloaded.')
-        print (f'{self.ndnloaded_calib:d} calibration files downloaded.')
+        print (f'A total of new {self.ndnloaded:d} FITS files downloaded.')
+        print (f'{self.ncaliblist:d} new calibration list downloaded.')
+        print (f'{self.ndnloaded_calib:d} new calibration FITS files downloaded.')
 
         return
 
 
 
-    def __download_calibfiles (self, listpath):
+    def __download_calibfiles (self, listpath, cookiejar):
 
         if self.debug:
             logging.debug ('')
@@ -1379,10 +1412,7 @@ class Archive:
 #
 #    read input caliblist JSON file
 #
-        self.nrec = 0
-        self.ndnloaded = 0
-        self.nerr = 0
- 
+        nrec = 0
         data = ''
         try:
             with open (listpath) as fp:
@@ -1423,10 +1453,6 @@ class Archive:
 #
 #    retrieve koaid from caliblist json structure and download files
 #
-
-#        if (nrec > 5):
-#            nrec = 5
-
         ndnloaded = 0
         for ind in range (0, nrec):
 

@@ -238,7 +238,7 @@ class KoaJob:
             
         return        
 
-
+    
     def get_parameters (self):
 
         if self.debug:
@@ -248,7 +248,7 @@ class KoaJob:
             logging.debug (self.parameters)
 
         return (self.parameters)
-
+    
 
     def get_phase (self):
 
@@ -320,20 +320,19 @@ class KoaJob:
 
         return (self.processid)
     
-    
+    """ 
     def get_ownerid (self):
         return ('None')
 
     def get_quote (self):
         return ('None')
-
+    """
 
     def get_starttime (self):
 
         if self.debug:
             logging.debug ('')
             logging.debug ('Enter get_starttime')
-#            logging.debug (f'starttime= {self.starttime:s}')
 
         if (len(self.starttime) == 0):
             self.starttime = self.job['uws:startTime']
@@ -350,7 +349,6 @@ class KoaJob:
         if self.debug:
             logging.debug ('')
             logging.debug ('Enter get_endtime')
-#            logging.debug (f'endtime= {self.endtime:s}')
 
         if (self.phase.lower() != 'completed'):
 
@@ -389,7 +387,6 @@ class KoaJob:
         if self.debug:
             logging.debug ('')
             logging.debug ('Enter get_executionduration')
-#            logging.debug (f'executionduration= {self.executionduration:s}')
 
         
         if (self.phase.lower() != 'completed'):
@@ -428,7 +425,6 @@ class KoaJob:
         if self.debug:
             logging.debug ('')
             logging.debug ('Enter get_destruction')
-#            logging.debug (f'destruction= {self.destruction:s}')
 
         if (self.phase.lower() != 'completed'):
 
@@ -466,7 +462,6 @@ class KoaJob:
         if self.debug:
             logging.debug ('')
             logging.debug ('Enter get_errorsummary')
-#            logging.debug (f'errorsummary= {self.errorsummary:s}')
 
         if ((self.phase.lower() != 'error') and \
 	    (self.phase.lower() != 'completed')):
@@ -532,15 +527,9 @@ class KoaJob:
 #
 #   self.status doesn't exist, call get_status
 #
-        datadict = dict()
-        datadict['debug'] = '/home/mihseh/tap/python/koatap.status.debug' 
-
         try:
-#            self.response = requests.get (self.statusurl, stream=True)
+            self.response = requests.get (self.statusurl, stream=True)
             
-            self.response = requests.get (self.statusurl, data=datadict, \
-	        stream=True)
-        
             if self.debug:
                 logging.debug ('')
                 logging.debug ('statusurl request sent')

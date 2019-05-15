@@ -87,7 +87,7 @@ class KoaTap:
         if self.debug:
             logging.debug ('')
             logging.debug ('')
-            logging.debug ('Enter koatap (debug on)')
+            logging.debug ('Enter koatap.init (debug on)')
                                 
         if ('cookiefile' in kwargs):
             self.cookiepath = kwargs.get('cookiefile')
@@ -114,8 +114,9 @@ class KoaTap:
 
         if self.debug:
             logging.debug ('')
-            logging.debug ('Enter KoaTap.init:')
             logging.debug (f'url= {self.url:s}')
+            logging.debug (f'cookiepath= {self.cookiepath:s}')
+
 
 #
 #    turn on server debug
@@ -269,17 +270,19 @@ class KoaTap:
 #
         if (self.response.status_code != 303):
             
-            if debug:
+            if self.debug:
                 logging.debug ('')
                 logging.debug ('case: not re-direct')
        
             self.content_type = self.response.headers['Content-type']
             self.encoding = self.response.encoding
         
-            if debug:
+            if self.debug:
                 logging.debug ('')
                 logging.debug (f'content_type= {self.content_type:s}')
-                logging.debug (f'encoding= {self.encoding:s}')
+                logging.debug ('encoding= ')
+                logging.debug (self.encoding)
+
 
             data = None
             self.status = ''
@@ -289,19 +292,24 @@ class KoaTap:
 #
 #    error message
 #
+                if self.debug:
+                    logging.debug ('')
+                    logging.debug ('self.response:')
+                    logging.debug (self.response.text)
+      
                 try:
-                    data = response.json()
+                    data = self.response.json()
                     
                 except Exception as e:
                 
-                    if debug:
+                    if self.debug:
                         logging.debug ('')
                         logging.debug (f'JSON object parse error: {str(e):s}')
       
                     self.status = 'error'
                     self.msg = 'JSON parse error: ' + str(e)
                 
-                    if debug:
+                    if self.debug:
                         logging.debug ('')
                         logging.debug (f'status= {self.status:s}')
                         logging.debug (f'msg= {self.msg:s}')
@@ -311,7 +319,7 @@ class KoaTap:
                 self.status = data['status']
                 self.msg = data['msg']
                 
-                if debug:
+                if self.debug:
                     logging.debug ('')
                     logging.debug (f'status= {self.status:s}')
                     logging.debug (f'msg= {self.msg:s}')
@@ -339,8 +347,12 @@ class KoaTap:
 #    create koajob to save status result
 #
         try:
-            self.koajob = koajob.KoaJob (\
-                self.statusurl, debug=1)
+            if (self.debug):
+                self.koajob = koajob.KoaJob (\
+                    self.statusurl, debug=1)
+            else:
+                self.koajob = koajob.KoaJob (\
+                    self.statusurl)
         
             if self.debug:
                 logging.debug ('')
