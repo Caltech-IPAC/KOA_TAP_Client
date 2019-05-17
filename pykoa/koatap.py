@@ -14,7 +14,7 @@ import http.cookiejar
 
 from astropy.table import Table,Column
 
-import koajob
+from pykoa import koajob
 
 class KoaTap:
 
