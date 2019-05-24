@@ -5,7 +5,7 @@ import getpass
 import logging
 import time
 import json
-import ijson
+#import ijson
 import xmltodict 
 import tempfile
 import bs4 as bs
